@@ -1,0 +1,69 @@
+package core
+
+import (
+	"github.com/rohitp934/guam/auth"
+)
+
+type ProviderUserAuth struct {
+	providerId     string
+	providerUserId string
+	auth           auth.Auth
+}
+
+func NewProviderUserAuth(auth auth.Auth, providerId, providerUserId string) *ProviderUserAuth {
+	provider := &ProviderUserAuth{
+		auth:           auth,
+		providerId:     providerId,
+		providerUserId: providerUserId,
+	}
+
+	return provider
+}
+
+type (
+	GuamUser                   auth.User
+	GuamDatabaseUserAttributes auth.CreateUserOptions
+)
+
+func (p *ProviderUserAuth) GetExistingUser() (*GuamUser, error) {
+	key, err := p.auth.UseKey(p.providerId, p.providerUserId, nil)
+	if err != nil {
+		return nil, auth.NewGuamError(auth.AUTH_INVALID_KEY_ID, nil)
+	}
+
+	user, err := p.auth.GetUser(key.UserId)
+	if err != nil {
+		return nil, auth.NewGuamError(auth.AUTH_INVALID_KEY_ID, nil)
+	}
+
+	return (*GuamUser)(user), nil
+}
+
+func (p *ProviderUserAuth) CreateKey(userId string) *auth.Key {
+	opts := auth.CreateKeyOptions{
+		UserId:         userId,
+		ProviderId:     p.providerId,
+		ProviderUserId: p.providerUserId,
+		Password:       nil,
+	}
+	return p.auth.CreateKey(opts)
+}
+
+func (p *ProviderUserAuth) CreateUser(
+	user *GuamUser,
+	attributes map[string]any,
+) *GuamUser {
+	opts := auth.CreateUserOptions{
+		UserId: &user.UserId,
+		Key: &auth.CreateUserKey{
+			ProviderId:     p.providerId,
+			ProviderUserId: p.providerUserId,
+			Password:       nil,
+		},
+		Attributes: attributes,
+	}
+
+	newUser := p.auth.CreateUser(opts)
+
+	return (*GuamUser)(newUser)
+}
