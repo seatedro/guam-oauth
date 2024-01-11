@@ -52,7 +52,7 @@ func (p *ProviderUserAuth) CreateKey(userId string) *auth.Key {
 func (p *ProviderUserAuth) CreateUser(
 	userId *string,
 	attributes map[string]any,
-) *GuamUser {
+) *auth.User {
 	opts := auth.CreateUserOptions{
 		UserId: userId,
 		Key: &auth.CreateUserKey{
@@ -65,5 +65,5 @@ func (p *ProviderUserAuth) CreateUser(
 
 	newUser := p.auth.CreateUser(opts)
 
-	return (*GuamUser)(newUser)
+	return newUser
 }
