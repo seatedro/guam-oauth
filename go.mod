@@ -1,4 +1,4 @@
-module guam-oauth
+module github.com/rohitp934/guam-oauth
 
 go 1.21.0
 
