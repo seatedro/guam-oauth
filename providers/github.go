@@ -3,11 +3,12 @@ package providers
 import (
 	"encoding/json"
 	"fmt"
-	"guam-oauth/core"
-	"guam-oauth/utils"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/rohitp934/guam-oauth/core"
+	"github.com/rohitp934/guam-oauth/utils"
 
 	"github.com/rohitp934/guam/auth"
 )

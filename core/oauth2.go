@@ -7,11 +7,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"guam-oauth/utils"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/rohitp934/guam-oauth/utils"
 
 	guamutils "github.com/rohitp934/guam/utils"
 )

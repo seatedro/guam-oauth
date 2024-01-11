@@ -3,8 +3,9 @@ package core
 import (
 	"encoding/json"
 	"errors"
-	"guam-oauth/utils"
 	"strings"
+
+	"github.com/rohitp934/guam-oauth/utils"
 )
 
 type OIDCPayload struct {
