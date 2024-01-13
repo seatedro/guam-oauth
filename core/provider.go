@@ -25,7 +25,7 @@ type (
 	GuamDatabaseUserAttributes auth.CreateUserOptions
 )
 
-func (p *ProviderUserAuth) GetExistingUser() (*GuamUser, error) {
+func (p *ProviderUserAuth) GetExistingUser() (*auth.User, error) {
 	key, err := p.auth.UseKey(p.providerId, p.providerUserId, nil)
 	if err != nil {
 		return nil, auth.NewGuamError(auth.AUTH_INVALID_KEY_ID, nil)
@@ -36,7 +36,7 @@ func (p *ProviderUserAuth) GetExistingUser() (*GuamUser, error) {
 		return nil, auth.NewGuamError(auth.AUTH_INVALID_KEY_ID, nil)
 	}
 
-	return (*GuamUser)(user), nil
+	return user, nil
 }
 
 func (p *ProviderUserAuth) CreateKey(userId string) *auth.Key {

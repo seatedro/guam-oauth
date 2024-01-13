@@ -1,10 +1,8 @@
 package core
 
 import (
-	"bytes"
 	"crypto/sha256"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -147,23 +145,30 @@ type ValidateOauth2AuthorizationCodeOptions struct {
 func ValidateOauth2AuthorizationCode(
 	opts ValidateOauth2AuthorizationCodeOptions,
 ) (*[]byte, error) {
-	body := map[string]string{
-		"code":       opts.AuthorizationCode,
-		"client_id":  opts.Options.ClientId,
-		"grant_type": "authorization_code",
-	}
+	// body := map[string]string{
+	// 	"code":       opts.AuthorizationCode,
+	// 	"client_id":  opts.Options.ClientId,
+	// 	"grant_type": "authorization_code",
+	// }
+	body := url.Values{}
+	body.Set("code", opts.AuthorizationCode)
+	body.Set("client_id", opts.Options.ClientId)
+	body.Set("grant_type", "authorization_code")
 
 	if opts.Options.RedirectUri != nil {
-		body["redirect_uri"] = *opts.Options.RedirectUri
+		// body["redirect_uri"] = *opts.Options.RedirectUri
+		body.Set("redirect_uri", *opts.Options.RedirectUri)
 	}
 
 	if opts.Options.CodeVerifier != nil {
-		body["code_verifier"] = *opts.Options.CodeVerifier
+		// body["code_verifier"] = *opts.Options.CodeVerifier
+		body.Set("code_verifier", *opts.Options.CodeVerifier)
 	}
 
 	if opts.Options.ClientPassword != nil &&
 		opts.Options.ClientPassword.AuthenticateWith == "client_secret" {
-		body["client_secret"] = opts.Options.ClientPassword.ClientSecret
+		body.Set("client_secret", opts.Options.ClientPassword.ClientSecret)
+		// body["client_secret"] = opts.Options.ClientPassword.ClientSecret
 	}
 
 	headers := http.Header{}
@@ -190,14 +195,14 @@ func ValidateOauth2AuthorizationCode(
 		headers.Add("Authorization", authn)
 	}
 
-	bodyBytes, err := json.Marshal(&body)
+	reader := io.NopCloser(strings.NewReader(body.Encode()))
+
+	URL, err := url.Parse(opts.URL)
 	if err != nil {
 		return nil, err
 	}
-
-	reader := io.NopCloser(bytes.NewReader(bodyBytes))
-
 	req := http.Request{
+		URL:    URL,
 		Method: http.MethodPost,
 		Header: headers,
 		Body:   reader,
@@ -207,6 +212,7 @@ func ValidateOauth2AuthorizationCode(
 		return nil, err
 	}
 
+	fmt.Printf("Response: %v\n", string(*response))
 	return response, nil
 }
 

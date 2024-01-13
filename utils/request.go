@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -18,6 +19,10 @@ func HandleRequest(req http.Request) (*[]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("received non-success response status: %s", resp.Status)
+	}
 
 	// var response ResponseBody
 	body, err := io.ReadAll(resp.Body)

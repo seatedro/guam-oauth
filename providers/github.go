@@ -2,6 +2,7 @@ package providers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -92,15 +93,19 @@ func (g *GithubAuth) ValidateAuthorizationCode(code string) (*GithubTokens, erro
 	if tokens.RefreshToken != nil {
 		return &GithubTokens{
 			AccessToken:           tokens.AccessToken,
-			AccessTokenExpiresIn:  *tokens.ExpiresIn,
-			RefreshToken:          *tokens.RefreshToken,
-			RefreshTokenExpiresIn: *tokens.RefreshTokenExpiresIn,
+			AccessTokenExpiresIn:  tokens.ExpiresIn,
+			RefreshToken:          tokens.RefreshToken,
+			RefreshTokenExpiresIn: tokens.RefreshTokenExpiresIn,
 		}, nil
 	}
 
+	if tokens.AccessToken == "" {
+		fmt.Println("Error getting access token")
+		return nil, errors.New("error getting access token")
+	}
 	return &GithubTokens{
 		AccessToken:          tokens.AccessToken,
-		AccessTokenExpiresIn: *tokens.ExpiresIn,
+		AccessTokenExpiresIn: tokens.ExpiresIn,
 	}, nil
 }
 
@@ -173,9 +178,9 @@ func NewGithubUserAuth(
 
 type GithubTokens struct {
 	AccessToken           string
-	RefreshToken          string
-	AccessTokenExpiresIn  int64
-	RefreshTokenExpiresIn int64
+	RefreshToken          *string
+	AccessTokenExpiresIn  *int64
+	RefreshTokenExpiresIn *int64
 }
 
 type GithubUser struct {
