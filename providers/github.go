@@ -10,6 +10,7 @@ import (
 
 	"github.com/rohitp934/guam-oauth/core"
 	"github.com/rohitp934/guam-oauth/utils"
+	"go.uber.org/zap"
 
 	"github.com/rohitp934/guam/auth"
 )
@@ -23,7 +24,23 @@ type Config struct {
 
 const PROVIDER_GITHUB = "github"
 
+var logger *zap.SugaredLogger
+
 func Github(auth auth.Auth, config Config) *GithubAuth {
+	if auth.Experimental.DebugMode {
+		l, err := zap.NewDevelopment()
+		if err != nil {
+			logger = zap.NewNop().Sugar()
+		}
+		logger = l.Sugar()
+	} else {
+		l, err := zap.NewProduction(zap.IncreaseLevel(zap.ErrorLevel))
+		if err != nil {
+			logger = zap.NewNop().Sugar()
+		}
+		logger = l.Sugar()
+	}
+
 	return NewGithubAuth(auth, config)
 }
 
@@ -79,14 +96,14 @@ func (g *GithubAuth) ValidateAuthorizationCode(code string) (*GithubTokens, erro
 	}
 	response, err := core.ValidateOauth2AuthorizationCode(opts)
 	if err != nil {
-		fmt.Printf("Error validating authorization code: %v", err)
+		logger.Errorf("Error validating authorization code: %v", err)
 		return nil, err
 	}
 
 	var tokens AccessTokenResponseBody
 	err = json.Unmarshal(*response, &tokens)
 	if err != nil {
-		fmt.Printf("Error unmarshalling access token response body: %v", err)
+		logger.Errorf("Error unmarshalling access token response body: %v", err)
 		return nil, err
 	}
 
@@ -100,7 +117,7 @@ func (g *GithubAuth) ValidateAuthorizationCode(code string) (*GithubTokens, erro
 	}
 
 	if tokens.AccessToken == "" {
-		fmt.Println("Error getting access token")
+		logger.Errorln("Error getting access token")
 		return nil, errors.New("error getting access token")
 	}
 	return &GithubTokens{
@@ -116,13 +133,13 @@ func getGithubUser(accessToken string) *GithubUser {
 		accessToken,
 	)
 	if err != nil {
-		fmt.Printf("Error getting authorization header: %v", err)
+		logger.Errorf("Error getting authorization header: %v", err)
 		return nil
 	}
 	h.Add("Authorization", authHeader)
 	url, err := url.Parse("https://api.github.com/user")
 	if err != nil {
-		fmt.Printf("Error parsing url: %v", err)
+		logger.Errorf("Error parsing url: %v", err)
 		return nil
 	}
 	githubUserReq := http.Request{
@@ -133,14 +150,14 @@ func getGithubUser(accessToken string) *GithubUser {
 
 	response, err := utils.HandleRequest(githubUserReq)
 	if err != nil {
-		fmt.Printf("Error getting github user: %v", err)
+		logger.Errorf("Error getting github user: %v", err)
 		return nil
 	}
 
 	var githubUser GithubUser
 	err = json.Unmarshal(*response, &githubUser)
 	if err != nil {
-		fmt.Printf("Error unmarshalling github user: %v", err)
+		logger.Errorf("Error unmarshalling github user: %v", err)
 		return nil
 	}
 
@@ -177,10 +194,10 @@ func NewGithubUserAuth(
 }
 
 type GithubTokens struct {
-	AccessToken           string
 	RefreshToken          *string
 	AccessTokenExpiresIn  *int64
 	RefreshTokenExpiresIn *int64
+	AccessToken           string
 }
 
 type GithubUser struct {
