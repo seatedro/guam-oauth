@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github.com/rohitp934/guam/auth"
+	"github.com/seatedro/guam/auth"
 )
 
 type ProviderUserAuth struct {

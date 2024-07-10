@@ -10,9 +10,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/rohitp934/guam-oauth/utils"
+	"github.com/seatedro/guam-oauth/utils"
 
-	guamutils "github.com/rohitp934/guam/utils"
+	guamutils "github.com/seatedro/guam/utils"
 )
 
 type GetAuthorizationUrlResponse struct {

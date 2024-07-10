@@ -8,11 +8,11 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/rohitp934/guam-oauth/core"
-	"github.com/rohitp934/guam-oauth/utils"
+	"github.com/seatedro/guam-oauth/core"
+	"github.com/seatedro/guam-oauth/utils"
 	"go.uber.org/zap"
 
-	"github.com/rohitp934/guam/auth"
+	"github.com/seatedro/guam/auth"
 )
 
 type Config struct {

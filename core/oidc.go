@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/rohitp934/guam-oauth/utils"
+	"github.com/seatedro/guam-oauth/utils"
 )
 
 type OIDCPayload struct {
